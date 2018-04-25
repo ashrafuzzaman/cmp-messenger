@@ -4,6 +4,8 @@ const request = require('request-promise'),
 
 const LOGIN_URL = 'https://accounts.newscred.com/login';
 
+login('ashrafuzzaman@newscred.com', 'qweqwe');
+
 document.querySelector('#login-form').onsubmit = function (e) {
     e.preventDefault();
     let email = document.querySelector('#email').value;
@@ -27,10 +29,10 @@ function login(email, password) {
                     password: password,
                     _csrf: csrf
                 }
-            }).then((response, options) => {
-                console.log('response, options', response, options);
-                alert(email);
-            });
+            }).catch((err) => {
+                console.log('err', err);
+                return null;
+            })
         })
         .then(() => {
             req.get('https://cmp.newscred.com/api/users', { json: true })

@@ -1,3 +1,41 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
+const request = require('request-promise'),
+    tough = require('tough-cookie');
+
+
+const LOGIN_URL = 'https://accounts.newscred.com/login';
+
+document.querySelector('#login-form').onsubmit = function (e) {
+    e.preventDefault();
+    let email = document.querySelector('#email').value;
+    let password = document.querySelector('#password').value;
+
+    login(email, password);
+};
+
+
+function login(email, password) {
+    let req = request.defaults({ jar: true });
+    req.get(LOGIN_URL)
+        .then(response => {
+            let loginDom = new DOMParser().parseFromString(response, "text/html");
+            return loginDom.querySelector('input[name=_csrf]').value;
+        })
+        .then(csrf => {
+            return req.post(LOGIN_URL, {
+                form: {
+                    email: email,
+                    password: password,
+                    _csrf: csrf
+                }
+            }).then((response, options) => {
+                console.log('response, options', response, options);
+                alert(email);
+            });
+        })
+        .then(() => {
+            req.get('https://cmp.newscred.com/api/users', { json: true })
+                .then((users) => {
+                    console.log('users', users);
+                })
+        });
+}
